@@ -47,9 +47,16 @@ extern "C" {
 #define PICO_DEFAULT_PITCH 1.05f
 #define PICO_DEFAULT_VOLUME 1.00f
 
+/* string-ify a macro */
+#define STRR(X) #X
+#define STR(X) STRR(X)
+
+#ifndef PICO_ROOT
+#define PICO_ROOT /usr
+#endif
 
 // searching these paths
-const char * lingware_paths[ 2 ] = { "./lang", "/usr/share/pico/lang" };
+const char * lingware_paths[ 2 ] = { "./lang", STR(PICO_ROOT) "/share/pico/lang" };
 
 #define FILE_OUTPUT_PREFIX "nanotts-output-"
 #define FILE_OUTPUT_SUFFIX ".wav"

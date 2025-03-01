@@ -1,13 +1,18 @@
 
 PROGRAM = nanotts
 PICO_LIBRARY = svoxpico/.libs/libttspico.a
-CFLAGS = -Wall
+
+PREFIX?=/usr
+DESTDIR?=
+PICO_ROOT := ${DESTDIR}${PREFIX}
+
+CFLAGS = -Wall -DPICO_ROOT=${PICO_ROOT}
 CFLAGS_DEBUG = -g
 CFLAGS_OPT = -O2
 SHELL := /bin/bash
-PICO_LANG_ROOT := /usr/share/pico
-PICO_LANG_LOCATION := $(PICO_LANG_ROOT)/lang/
 
+PICO_LANG_ROOT := ${PICO_ROOT}/share/pico
+PICO_LANG_LOCATION := $(PICO_LANG_ROOT)/lang/
 #LINKER_FLAGS := -lasound -lao
 #LINKER_FLAGS := -lasound -lm
 LINKER_FLAGS := -lm
@@ -87,12 +92,13 @@ pico: $(PICO_LIBRARY)
 both: $(PROGRAM) pico
 
 install:
-	install -m 0755 $(PROGRAM) /usr/bin/
+	@if [ ! -d ${PICO_ROOT}/bin ]; then echo mkdir -p -m 755 ${PICO_ROOT}/bin ; mkdir -p -m 755 ${PICO_ROOT}/bin; fi
+	install -m 0755 $(PROGRAM) ${PICO_ROOT}/bin/
 	@if [ ! -d $(PICO_LANG_LOCATION) ]; then echo mkdir -p -m 755 $(PICO_LANG_LOCATION); mkdir -p -m 755 $(PICO_LANG_LOCATION); fi
 	@for file in ./lang/* ; do echo install -m 0644 $${file} $(PICO_LANG_LOCATION); install -m 0644 $${file} $(PICO_LANG_LOCATION); done
 
 uninstall:
-	@if [ -e /usr/bin/$(PROGRAM) ]; then echo rm /usr/bin/$(PROGRAM); rm /usr/bin/$(PROGRAM); fi
+	@if [ -e ${PICO_ROOT}/bin/$(PROGRAM) ]; then echo rm ${PICO_ROOT}/bin/$(PROGRAM); rm ${PICO_ROOT}/bin/$(PROGRAM); fi
 	@if [ -e $(PICO_LANG_ROOT) ]; then echo rm -rf $(PICO_LANG_ROOT); rm -rf $(PICO_LANG_ROOT) ; fi
 
 update_build_version:

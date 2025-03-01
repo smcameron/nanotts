@@ -51,12 +51,12 @@ extern "C" {
 #define STRR(X) #X
 #define STR(X) STRR(X)
 
-#ifndef PICO_ROOT
-#define PICO_ROOT /usr
+#ifndef PICO_LANG_LOCATION
+#define PICO_LANG_LOCATION ./lang
 #endif
 
 // searching these paths
-const char * lingware_paths[ 2 ] = { "./lang", STR(PICO_ROOT) "/share/pico/lang" };
+const char * lingware_paths[ 2 ] = { "./lang", STR(PICO_LANG_LOCATION) };
 
 #define FILE_OUTPUT_PREFIX "nanotts-output-"
 #define FILE_OUTPUT_SUFFIX ".wav"
@@ -1048,6 +1048,7 @@ Pico::~Pico() {
 void Pico::setLangFilePath( const char * path ) {
     unsigned int len = strlen( path ) + 1;
     picoLingwarePath = new char[ len ];
+	fprintf(stderr, "set picoLingwarePath to '%s'\n", picoLingwarePath);
     strcpy( picoLingwarePath, path );
 }
 
@@ -1074,7 +1075,9 @@ int Pico::initializeSystem()
     // path
     if ( !picoLingwarePath )
         setLangFilePath();
-    strcpy((char *) picoTaFileName, picoLingwarePath);
+
+    // strcpy((char *) picoTaFileName, picoLingwarePath);
+    strcpy((char *) picoTaFileName, STR(PICO_LANG_LOCATION) );
 
     // check for connecting slash
     unsigned int len = strlen( (const char*)picoTaFileName );
@@ -1086,23 +1089,46 @@ int Pico::initializeSystem()
 
     // attempt to load it
     if ( (ret = pico_loadResource(picoSystem, picoTaFileName, &picoTaResource)) ) {
+        if (picoTaResource) {
+            pico_unloadResource( picoSystem, &picoTaResource );
+            picoTaResource = 0;
+	}
         pico_getSystemStatusMessage(picoSystem, ret, outMessage);
         fprintf( stderr, "Cannot load text analysis resource file (%i): %s\n", ret, outMessage );
-        goto unloadTaResource;
+
+        // Try loading from ./lang/...
+        snprintf( (char *) picoTaFileName, PICO_MAX_DATAPATH_NAME_SIZE + PICO_MAX_FILE_NAME_SIZE,
+                  "%s/%s", lingware_paths[0], voices.getTaName() );
+        if ( (ret = pico_loadResource(picoSystem, picoTaFileName, &picoTaResource)) ) {
+            pico_getSystemStatusMessage(picoSystem, ret, outMessage);
+            fprintf( stderr, "Cannot load text analysis resource file (%i): %s\n", ret, outMessage );
+            goto unloadTaResource;
+        }
     }
 
     /* Load the signal generation Lingware resource file.   */
     picoSgFileName = (pico_Char *) malloc( PICO_MAX_DATAPATH_NAME_SIZE + PICO_MAX_FILE_NAME_SIZE );
 
-    strcpy((char *) picoSgFileName,   picoLingwarePath );
+    // strcpy((char *) picoSgFileName,   picoLingwarePath );
+    strcpy((char *) picoSgFileName,   STR(PICO_LANG_LOCATION) );
     if ( picoSgFileName[len-1] != '/' )
         strcat((char*) picoSgFileName, "/");
     strcat((char *) picoSgFileName,   voices.getSgName() );
 
     if ( (ret = pico_loadResource(picoSystem, picoSgFileName, &picoSgResource)) ) {
+        if (picoSgResource) {
+            pico_unloadResource( picoSystem, &picoSgResource );
+            picoSgResource = 0;
+	}
         pico_getSystemStatusMessage(picoSystem, ret, outMessage);
         fprintf( stderr, "Cannot load signal generation Lingware resource file (%i): %s\n", ret, outMessage );
-        goto unloadSgResource;
+
+        // Try loading from ./lang ...
+        snprintf( (char *) picoSgFileName, PICO_MAX_DATAPATH_NAME_SIZE + PICO_MAX_FILE_NAME_SIZE,
+                  "%s/%s", lingware_paths[0], voices.getSgName() );
+
+        if ( (ret = pico_loadResource(picoSystem, picoSgFileName, &picoSgResource)) )
+            goto unloadSgResource;
     }
 
     /* Get the text analysis resource name.     */

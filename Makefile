@@ -2,17 +2,17 @@
 PROGRAM = nanotts
 PICO_LIBRARY = svoxpico/.libs/libttspico.a
 
-PREFIX?=.
+PREFIX?=/usr
 DESTDIR?=
 PICO_ROOT := ${DESTDIR}${PREFIX}
-PICO_LANG_ROOT := ${PICO_ROOT}/share/pico
-PICO_LANG_LOCATION := $(PICO_LANG_ROOT)/lang/
 
-CFLAGS = -Wall -DPICO_LANG_LOCATION=${PICO_LANG_LOCATION}
+CFLAGS = -Wall -DPICO_ROOT=${PICO_ROOT}
 CFLAGS_DEBUG = -g
 CFLAGS_OPT = -O2
 SHELL := /bin/bash
 
+PICO_LANG_ROOT := ${PICO_ROOT}/share/pico
+PICO_LANG_LOCATION := $(PICO_LANG_ROOT)/lang/
 #LINKER_FLAGS := -lasound -lao
 #LINKER_FLAGS := -lasound -lm
 LINKER_FLAGS := -lm

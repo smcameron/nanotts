@@ -1,10 +1,12 @@
 
 PROGRAM = nanotts
+MANPAGE = ${PROGRAM}.1
 PICO_LIBRARY = svoxpico/.libs/libttspico.a
 
 PREFIX?=/usr
 DESTDIR?=
 PICO_ROOT := ${DESTDIR}${PREFIX}
+MANDIR=${PICO_ROOT}/share/man/man1
 
 CFLAGS = -Wall -DPICO_ROOT=${PICO_ROOT}
 CFLAGS_DEBUG = -g
@@ -94,11 +96,14 @@ both: $(PROGRAM) pico
 install:
 	@if [ ! -d ${PICO_ROOT}/bin ]; then echo mkdir -p -m 755 ${PICO_ROOT}/bin ; mkdir -p -m 755 ${PICO_ROOT}/bin; fi
 	install -m 0755 $(PROGRAM) ${PICO_ROOT}/bin/
+	@if [ ! -d ${MANDIR} ]; then echo mkdir -p -m 755 ${MANDIR} ; mkdir -p -m 755 ${MANDIR}; fi
+	install -m 644 docs/${MANPAGE} ${MANDIR}
 	@if [ ! -d $(PICO_LANG_LOCATION) ]; then echo mkdir -p -m 755 $(PICO_LANG_LOCATION); mkdir -p -m 755 $(PICO_LANG_LOCATION); fi
 	@for file in ./lang/* ; do echo install -m 0644 $${file} $(PICO_LANG_LOCATION); install -m 0644 $${file} $(PICO_LANG_LOCATION); done
 
 uninstall:
 	@if [ -e ${PICO_ROOT}/bin/$(PROGRAM) ]; then echo rm ${PICO_ROOT}/bin/$(PROGRAM); rm ${PICO_ROOT}/bin/$(PROGRAM); fi
+	@if [ -e ${MANDIR}/${MANPAGE} ]; then echo rm ${MANDIR}/${MANPAGE}; rm ${MANDIR}/${MANPAGE}; fi
 	@if [ -e $(PICO_LANG_ROOT) ]; then echo rm -rf $(PICO_LANG_ROOT); rm -rf $(PICO_LANG_ROOT) ; fi
 
 update_build_version:

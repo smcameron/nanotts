@@ -1,0 +1,70 @@
+.TH NANOTTS "1" "JUNE 2025" "nanotts" "User Commands"
+.SH NAME
+nanotts \- Small footprint text to speech
+.SH SYNOPSIS
+.B nanotts [ OPTIONS ]
+
+.SH DESCRIPTION
+.\" Add any additional description here
+Nanotts generates audio speech from input text, which may be played
+back immediately, written to a file, or both.  Nanotts is a much
+improved version of pico2wave with a better user experience.
+.\" .SH OPTIONS
+.\" .TP
+.\" \fB\-x, --xxxxx\fR
+.\" This is not really an option, this is just a template for the man
+.\" page for when the real options get implemented.
+.SH OPTIONS
+.TP
+\fB\-c\fR
+Send raw PCM output to stdout
+.TP
+\fB\-f filename\fR
+Read input text from the specified file
+.TP
+\fB\-h, --help\fR
+Print out help text and then exit
+.TP
+\fB\-i "text"\fR
+Use quoted argument as input instead of reading from a file or standard input
+.TP
+\fB\-l directory\fR
+Set Lingware voices directory. (defaults: "./lang", "/usr/share/pico/lang/")
+.TP
+\fB\-m, --no-play\fR
+Do not play output to audio device
+.TP
+\fB\-o filename\fR
+Write output to WAV/PCM file (enables WAV output)
+.TP
+\fB\-p, --play\fR
+Play output to audio device
+.TP
+\fB\--pitch <0.5-2.0>\fR
+Change the pitch of the voice
+.TP
+\fB\--speed <0.5-2.0>\fR
+Change the speed of the voice
+.TP
+\fB\--prefix\fR
+Set the file prefix (eg. "MyRecording-").  Generated files will be auto-numbered.
+This option is good for running multiple times with different inputs
+.TP
+\fB\-w, --wav\fR
+Write output to WAV file, will generate filename if '-o' option not provided
+.TP
+\fB\--version\fR
+Displays version information about this program
+\fB\-v, --voice <voice>
+Select voice. The default voice is en-GB.  Possible voices are en-US, en-GB, de-DE, es-ES, fr-FR, it-IT
+\fB\--volume <0.0-5.0>\fR
+Set voice volume (>1.0 may result in degraded quality)
+.SH EXAMPLES
+.nf
+nanotts -f ray_bradbury.txt -o ray_bradbury.wav
+echo "Mary had a little lamb" | nanotts --play
+nanotts -i "Once upon a midnight dreary" -v en-US --speed 0.8 --pitch 1.8 -w -p
+echo "Brave Ulysses" | nanotts -c | play -r 16k -L -t raw -e signed -b 16 -c 1 -
+.fi
+.PP
+.br
